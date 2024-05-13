@@ -32,6 +32,7 @@ async def reset_current_user_password(
     session.add(current_user)
     await session.commit()
 
+
 @router.delete(
     "/me",
     status_code=status.HTTP_204_NO_CONTENT,
