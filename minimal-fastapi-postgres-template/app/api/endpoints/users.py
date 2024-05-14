@@ -31,3 +31,17 @@ async def reset_current_user_password(
     current_user.hashed_password = get_password_hash(user_update_password.password)
     session.add(current_user)
     await session.commit()
+
+
+@router.delete(
+    "/me",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Delete current user",
+)
+async def delete_current_user(
+    session: AsyncSession = Depends(deps.get_session),
+    current_user: User = Depends(deps.get_current_user),
+) -> None:
+    await session.execute(select(User).where(User.user_id == current_user.user_id))
+    await session.execute(delete(User).where(User.user_id == current_user.user_id))
+    await session.commit()
