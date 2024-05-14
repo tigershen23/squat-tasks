@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
@@ -15,6 +15,12 @@ app = FastAPI(
 
 app.include_router(auth_router)
 app.include_router(api_router)
+
+
+@app.get("/health")
+def health():
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
 
 # Sets all CORS enabled origins
 app.add_middleware(
