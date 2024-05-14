@@ -1,0 +1,8 @@
+#!/bin/zsh
+# shellcheck disable=SC1071
+
+# PREREQS: pyenv, docker, curl, logged into exponentset -euo pipefail
+IFS=$'\n\t'
+
+cd minimal-fastapi-postgres-template || exit
+docker compose down -v --rmi all --remove-orphans
