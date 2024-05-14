@@ -11,4 +11,4 @@ async def test_health_status_code(
         app.url_path_for("health"),
     )
 
-    assert response.status_code == status.HTTP_200_OK
+    assert response.status_code == status.HTTP_204_NO_CONTENT
