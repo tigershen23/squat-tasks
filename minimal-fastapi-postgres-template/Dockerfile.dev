@@ -1,0 +1,50 @@
+# The base stage with Python installed
+FROM python:3.12.3-slim-bullseye as base
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+WORKDIR /build
+
+# The stage for installing Poetry and exporting dependencies
+FROM base as poetry
+
+# Install Poetry
+RUN pip install poetry==1.8.2
+
+# Copy the pyproject.toml and poetry.lock to the container
+COPY poetry.lock pyproject.toml ./
+
+# Export the dependencies to a requirements.txt file, including dev dependencies
+RUN poetry export -f requirements.txt -o /requirements.txt --without-hashes --dev
+
+# The common stage setup
+FROM base as common
+
+# Copy the requirements.txt from the poetry stage
+COPY --from=poetry /requirements.txt /requirements.txt
+
+# Create a virtual environment and install the dependencies
+RUN python -m venv /venv \
+    && /venv/bin/pip install --no-cache-dir -r /requirements.txt
+
+# Set PATH to use the virtual environment
+ENV PATH="/venv/bin:$PATH"
+
+# Additionally install any other tools (e.g., uvicorn)
+RUN pip install uvicorn[standard]
+
+# Copy the rest of the application code
+COPY . .
+
+# Create a new user to run the application as an unprivileged user
+RUN addgroup --gid 1001 --system uvicorn \
+    && adduser --gid 1001 --shell /bin/false --disabled-password --uid 1001 uvicorn
+
+# Ensure the unprivileged user owns the application files
+RUN chown -R uvicorn:uvicorn /build
+
+# Run a placeholder command to keep the container running. Replace this with your actual command as needed.
+CMD ["tail", "-f", "/dev/null"]
+
+# Expose the necessary port
+EXPOSE 8000

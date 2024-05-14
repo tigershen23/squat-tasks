@@ -1,9 +1,3 @@
-# For local development, only database is running
-#
-# docker compose up -d
-# uvicorn app.main:app --reload
-#
-
 services:
   postgres_db:
     restart: unless-stopped
@@ -17,7 +11,23 @@ services:
     env_file:
       - .env
     ports:
-      - "${DATABASE__PORT}:5432"
+      - "${DATABASE__PORT}:5460"
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    volumes:
+      - .:/build
+    environment:
+      - DATABASE__HOSTNAME=postgres_db
+      - DATABASE__PORT=5460
+    env_file:
+      - .env
+    depends_on:
+      - postgres_db
+    command: tail -f /dev/null
 
 volumes:
   postgres_db:
