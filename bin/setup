@@ -5,4 +5,5 @@
 IFS=$'\n\t'
 
 cd minimal-fastapi-postgres-template || exit
+cp .env.example .env
 docker compose build
